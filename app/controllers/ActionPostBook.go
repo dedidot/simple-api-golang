@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -72,17 +73,38 @@ func DeletedBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
  
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
-	response, err := json.Marshal(payload)
+	fmt.Println("status ", status)
+	var res utils.ResponseData
+
+	res.Status = status
+	res.Meta = utils.ResponseMessage(status)
+	res.Data = payload
+
+	response, err := json.Marshal(res)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Write([]byte(response))
 }
 
-func respondError(w http.ResponseWriter, code int, message string) {
-	respondJSON(w, code, map[string]string{"error": message})
+func respondError(w http.ResponseWriter, status int, message string) {
+	var res utils.ResponseData
+	rescode := utils.ResponseMessage(status);
+	res.Status = status
+	res.Meta = rescode
+	response, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write([]byte(response))
 }

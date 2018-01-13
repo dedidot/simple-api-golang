@@ -26,6 +26,8 @@ func OneBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		respondJSON(w, http.StatusOK, books)
+		return
 	}
-	respondJSON(w, http.StatusOK, books)
 }
